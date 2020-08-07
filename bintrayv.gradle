@@ -1,0 +1,53 @@
+apply plugin: 'com.jfrog.bintray'
+
+version = libraryVersion
+
+// 生成源文件的任务
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    getArchiveClassifier().convention('sources')
+    getArchiveClassifier().set('sources')
+}
+
+// 生成文档的任务
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+// 生成文档Jar的任务
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    getArchiveClassifier().convention('javadoc')
+    getArchiveClassifier().set('javadoc')
+    from javadoc.destinationDir
+}
+
+// 打包内容
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = bintrayRepo
+        name = bintrayName
+        desc = libraryDescription
+        websiteUrl = siteUrl
+        vcsUrl = vcsUrl
+        licenses = allLicenses
+        publish = true
+        publicDownloadNumbers = true
+        version {
+            name = libraryVersion
+            desc = libraryVersionDesc
+        }
+    }
+}
