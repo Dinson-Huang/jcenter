@@ -24,7 +24,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 // 打包内容
 artifacts {
-    archives javadocJar
     archives sourcesJar
 }
 
